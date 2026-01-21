@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chúc mừng Tân Xuân Bính Ngọ 2026</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at bottom, #00111f, #000);
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    #message {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      font-size: 3em;
+      font-weight: bold;
+      color: #ffd700;
+      text-shadow: 0 0 10px #ffcc33, 0 0 20px #ff9933;
+      opacity: 0;
+      transition: all 1.5s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #submessage {
+      position: absolute;
+      top: 48%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.1em;
+      color: rgba(255,255,255,0.8);
+      text-shadow: 0 0 6px #fff, 0 0 12px #ff99cc;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="message">Chúc mừng Tân Xuân Bính Ngọ 2026</div>
+  <div id="submessage">Bấm vào màn hình để bắn pháo hoa</div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const message = document.getElementById("message");
+    const submessage = document.getElementById("submessage");
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    let particles = [];
+    let petals = [];
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function createFirework(x, y) {
+      const colors = ["#ff4d4d", "#ffd11a", "#66ffcc", "#66a3ff", "#ff99ff", "#ff66cc", "#99ff66"];
+
+      for (let i = 0; i < 120; i++) {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos((Math.PI * 2 * i) / 120) * random(1, 6),
+          vy: Math.sin((Math.PI * 2 * i) / 120) * random(1, 6),
+          alpha: 1,
+          color: color,
+          size: random(2, 3.5),
+        });
+      }
+
+      for (let i = 0; i < 20; i++) {
+        petals.push({
+          x: x,
+          y: y,
+          vx: random(-1.5, 1.5),
+          vy: random(-2, -0.5),
+          alpha: 1,
+          rotation: random(0, Math.PI * 2),
+          size: random(6, 10),
+        });
+      }
+
+      if (message.style.opacity !== "1") {
+        message.style.opacity = "1";
+        message.style.transform = "translate(-50%, -50%) scale(1)";
+        submessage.style.opacity = "1";
+      }
+    }
+
+    function update() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach((p, index) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.02;
+        p.alpha -= 0.01;
+
+        if (p.alpha <= 0) {
+          particles.splice(index, 1);
+        } else {
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 10;
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      petals.forEach((p, index) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03;
+        p.rotation += 0.05;
+        p.alpha -= 0.005;
+
+        if (p.alpha <= 0) {
+          petals.splice(index, 1);
+        } else {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = "#ffb7d5";
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size / 2, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      });
+
+      requestAnimationFrame(update);
+    }
+
+    update();
+
+    canvas.addEventListener("click", (e) => {
+      createFirework(e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      createFirework(t.clientX, t.clientY);
+    });
+  </script>
+</body>
+</html>
